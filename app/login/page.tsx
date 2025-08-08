@@ -6,66 +6,99 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Wrench, User, Building } from 'lucide-react'
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Wrench, User, Building, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react'
 import Link from "next/link"
 import { useRouter } from 'next/navigation'
 import { authenticateUser } from '@/lib/auth'
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [showClientPassword, setShowClientPassword] = useState(false)
+  const [showServicePassword, setShowServicePassword] = useState(false)
   const router = useRouter()
 
   const handleClientLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setError('')
+    setSuccess('')
     
     const formData = new FormData(e.target as HTMLFormElement)
     const email = formData.get('email') as string
     const password = formData.get('password') as string
     
-    // Validare reală cu contul de test
-    const user = authenticateUser(email, password, 'client')
+    console.log('🔐 Client login attempt:', { email })
     
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      // Validare reală cu contul de test
+      const user = authenticateUser(email, password, 'client')
+      
       if (user) {
-        router.push('/client-dashboard')
+        console.log('✅ Client login successful:', user)
+        setSuccess('Login reușit! Te redirectez...')
+        
+        setTimeout(() => {
+          router.push('/client-dashboard')
+        }, 1000)
       } else {
-        alert('Email sau parolă incorectă!\n\nCont de test:\nEmail: client@carnect.ro\nParolă: client123')
+        console.log('❌ Client login failed')
+        setError('Email sau parolă incorectă!')
       }
-    }, 1000)
+    } catch (error) {
+      console.error('❌ Login error:', error)
+      setError('Eroare la conectare. Încearcă din nou.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const handleServiceLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
+    setError('')
+    setSuccess('')
     
     const formData = new FormData(e.target as HTMLFormElement)
     const email = formData.get('email') as string
     const password = formData.get('password') as string
     
-    // Validare reală cu contul de test
-    const user = authenticateUser(email, password, 'service')
+    console.log('🔐 Service login attempt:', { email })
     
-    setTimeout(() => {
-      setIsLoading(false)
+    try {
+      // Validare reală cu contul de test
+      const user = authenticateUser(email, password, 'service')
+      
       if (user) {
-        router.push('/service-dashboard')
+        console.log('✅ Service login successful:', user)
+        setSuccess('Login reușit! Te redirectez...')
+        
+        setTimeout(() => {
+          router.push('/service-dashboard')
+        }, 1000)
       } else {
-        alert('Email sau parolă incorectă!\n\nCont de test:\nEmail: service@carnect.ro\nParolă: service123')
+        console.log('❌ Service login failed')
+        setError('Email sau parolă incorectă!')
       }
-    }, 1000)
+    } catch (error) {
+      console.error('❌ Login error:', error)
+      setError('Eroare la conectare. Încearcă din nou.')
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-4 px-4 sm:py-12 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8">
         <div className="text-center">
-          <Link href="/" className="flex items-center justify-center space-x-2 mb-6">
-            <Wrench className="h-10 w-10 text-orange-600" />
-            <span className="text-3xl font-bold text-gray-900">CarNect</span>
+          <Link href="/" className="flex items-center justify-center space-x-2 mb-4 sm:mb-6">
+            <Wrench className="h-8 w-8 sm:h-10 sm:w-10 text-orange-600" />
+            <span className="text-2xl sm:text-3xl font-bold text-gray-900">CarNect</span>
           </Link>
-          <h2 className="text-2xl font-bold text-gray-900">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
             Conectează-te la contul tău
           </h2>
           <p className="mt-2 text-sm text-gray-600">
@@ -73,63 +106,99 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {/* Error/Success Messages */}
+        {error && (
+          <Alert className="border-red-200 bg-red-50">
+            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-700 text-sm">
+              {error}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {success && (
+          <Alert className="border-green-200 bg-green-50">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-700 text-sm">
+              {success}
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Tabs defaultValue="client" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="client" className="flex items-center space-x-2">
-              <User className="h-4 w-4" />
+          <TabsList className="grid w-full grid-cols-2 h-12 sm:h-10">
+            <TabsTrigger value="client" className="flex items-center space-x-1 sm:space-x-2 text-sm">
+              <User className="h-3 w-3 sm:h-4 sm:w-4" />
               <span>Client</span>
             </TabsTrigger>
-            <TabsTrigger value="service" className="flex items-center space-x-2">
-              <Building className="h-4 w-4" />
+            <TabsTrigger value="service" className="flex items-center space-x-1 sm:space-x-2 text-sm">
+              <Building className="h-3 w-3 sm:h-4 sm:w-4" />
               <span>Service</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="client">
+          <TabsContent value="client" className="mt-4 sm:mt-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Conectare Client</CardTitle>
-                <CardDescription>
+              <CardHeader className="pb-4 sm:pb-6">
+                <CardTitle className="text-lg sm:text-xl">Conectare Client</CardTitle>
+                <CardDescription className="text-sm">
                   Conectează-te pentru a găsi service-uri auto în zona ta
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleClientLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="client-email">Email</Label>
+                    <Label htmlFor="client-email" className="text-sm font-medium">Email</Label>
                     <Input
                       id="client-email"
                       type="email"
-                      placeholder="exemplu@email.com"
+                      placeholder="client@carnect.ro"
                       required
                       name="email"
+                      defaultValue="client@carnect.ro"
+                      className="h-11 sm:h-10 text-base sm:text-sm"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="client-password">Parolă</Label>
-                    <Input
-                      id="client-password"
-                      type="password"
-                      placeholder="Introdu parola"
-                      required
-                      name="password"
-                    />
+                    <Label htmlFor="client-password" className="text-sm font-medium">Parolă</Label>
+                    <div className="relative">
+                      <Input
+                        id="client-password"
+                        type={showClientPassword ? "text" : "password"}
+                        placeholder="client123"
+                        required
+                        name="password"
+                        defaultValue="client123"
+                        className="h-11 sm:h-10 text-base sm:text-sm pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowClientPassword(!showClientPassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        {showClientPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <Link href="/forgot-password" className="text-sm text-orange-600 hover:text-orange-500">
+                    <Link href="/forgot-password" className="text-xs sm:text-sm text-orange-600 hover:text-orange-500">
                       Ai uitat parola?
                     </Link>
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full bg-orange-600 hover:bg-orange-700"
+                    className="w-full bg-orange-600 hover:bg-orange-700 h-11 sm:h-10 text-base sm:text-sm"
                     disabled={isLoading}
                   >
                     {isLoading ? 'Se conectează...' : 'Conectare'}
                   </Button>
                 </form>
                 <div className="mt-4 text-center">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-xs sm:text-sm text-gray-600">
                     Nu ai cont?{' '}
                     <Link href="/register" className="text-orange-600 hover:text-orange-500 font-medium">
                       Înregistrează-te aici
@@ -140,51 +209,68 @@ export default function LoginPage() {
             </Card>
           </TabsContent>
 
-          <TabsContent value="service">
+          <TabsContent value="service" className="mt-4 sm:mt-6">
             <Card>
-              <CardHeader>
-                <CardTitle>Conectare Service</CardTitle>
-                <CardDescription>
+              <CardHeader className="pb-4 sm:pb-6">
+                <CardTitle className="text-lg sm:text-xl">Conectare Service</CardTitle>
+                <CardDescription className="text-sm">
                   Conectează-te la panoul tău de partener CarNect
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleServiceLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="service-email">Email</Label>
+                    <Label htmlFor="service-email" className="text-sm font-medium">Email</Label>
                     <Input
                       id="service-email"
                       type="email"
-                      placeholder="contact@service.ro"
+                      placeholder="service@carnect.ro"
                       required
                       name="email"
+                      defaultValue="service@carnect.ro"
+                      className="h-11 sm:h-10 text-base sm:text-sm"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="service-password">Parolă</Label>
-                    <Input
-                      id="service-password"
-                      type="password"
-                      placeholder="Introdu parola"
-                      required
-                      name="password"
-                    />
+                    <Label htmlFor="service-password" className="text-sm font-medium">Parolă</Label>
+                    <div className="relative">
+                      <Input
+                        id="service-password"
+                        type={showServicePassword ? "text" : "password"}
+                        placeholder="service123"
+                        required
+                        name="password"
+                        defaultValue="service123"
+                        className="h-11 sm:h-10 text-base sm:text-sm pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowServicePassword(!showServicePassword)}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      >
+                        {showServicePassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                   <div className="flex items-center justify-between">
-                    <Link href="/forgot-password" className="text-sm text-orange-600 hover:text-orange-500">
+                    <Link href="/forgot-password" className="text-xs sm:text-sm text-orange-600 hover:text-orange-500">
                       Ai uitat parola?
                     </Link>
                   </div>
                   <Button 
                     type="submit" 
-                    className="w-full bg-orange-600 hover:bg-orange-700"
+                    className="w-full bg-orange-600 hover:bg-orange-700 h-11 sm:h-10 text-base sm:text-sm"
                     disabled={isLoading}
                   >
                     {isLoading ? 'Se conectează...' : 'Conectare'}
                   </Button>
                 </form>
                 <div className="mt-4 text-center">
-                  <p className="text-sm text-gray-600">
+                  <p className="text-xs sm:text-sm text-gray-600">
                     Nu ești încă partener?{' '}
                     <Link href="/register" className="text-orange-600 hover:text-orange-500 font-medium">
                       Devino partener CarNect
@@ -196,16 +282,26 @@ export default function LoginPage() {
           </TabsContent>
         </Tabs>
 
-        <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-          <h4 className="font-medium text-blue-800 mb-2">Conturi de testare:</h4>
-          <div className="text-sm text-blue-700">
-            <p><strong>Client:</strong> client@carnect.ro / client123</p>
-            <p><strong>Service:</strong> service@carnect.ro / service123</p>
+        {/* Test Accounts Info - Mobile Optimized */}
+        <div className="p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <h4 className="font-medium text-blue-800 mb-2 text-sm sm:text-base">Conturi de testare:</h4>
+          <div className="text-xs sm:text-sm text-blue-700 space-y-1">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
+              <p className="font-medium">Client:</p>
+              <p className="break-all">client@carnect.ro / client123</p>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4">
+              <p className="font-medium">Service:</p>
+              <p className="break-all">service@carnect.ro / service123</p>
+            </div>
           </div>
+          <p className="text-xs text-blue-600 mt-2">
+            💡 Credențialele sunt pre-completate pentru testare rapidă
+          </p>
         </div>
 
         <div className="text-center">
-          <Link href="/" className="text-sm text-gray-600 hover:text-gray-500">
+          <Link href="/" className="text-xs sm:text-sm text-gray-600 hover:text-gray-500">
             ← Înapoi la pagina principală
           </Link>
         </div>

@@ -11,6 +11,7 @@ import Image from "next/image"
 
 export default function HomePage() {
   const [currentPremiumIndex, setCurrentPremiumIndex] = useState(0)
+  const [currentRecommendedIndex, setCurrentRecommendedIndex] = useState(0)
 
   // Premium services for rotation
   const premiumServices = [
@@ -46,6 +47,66 @@ export default function HomePage() {
     }
   ]
 
+  // Recommended services for rotation
+  const recommendedServices = [
+    {
+      id: 'rec-1',
+      name: 'AutoService Garage SRL',
+      description: 'Service complet și reparații',
+      rating: 4.8,
+      reviews: 127,
+      location: 'Sector 3, București',
+      schedule: 'L-V: 8-18',
+      priceFrom: '150 RON',
+      serviceType: 'Service complet',
+      image: '/auto-service-garage.png',
+      bgColor: 'bg-orange-100',
+      iconColor: 'text-orange-600'
+    },
+    {
+      id: 'rec-2',
+      name: 'TechAuto Service',
+      description: 'Diagnosticare și reparații',
+      rating: 4.9,
+      reviews: 89,
+      location: 'Sector 1, București',
+      schedule: 'L-S: 9-17',
+      priceFrom: '80 RON',
+      serviceType: 'Diagnosticare',
+      image: '/quick-auto-service.png',
+      bgColor: 'bg-blue-100',
+      iconColor: 'text-blue-600'
+    },
+    {
+      id: 'rec-3',
+      name: 'Premium Auto Expert',
+      description: 'Reparații premium BMW/Audi',
+      rating: 4.9,
+      reviews: 156,
+      location: 'Sector 2, București',
+      schedule: 'L-V: 9-18',
+      priceFrom: '200 RON',
+      serviceType: 'Service premium',
+      image: '/premium-auto-service.png',
+      bgColor: 'bg-purple-100',
+      iconColor: 'text-purple-600'
+    },
+    {
+      id: 'rec-4',
+      name: 'EcoService Verde',
+      description: 'Servicii eco-friendly',
+      rating: 4.7,
+      reviews: 94,
+      location: 'Sector 4, București',
+      schedule: 'L-V: 8-17',
+      priceFrom: '120 RON',
+      serviceType: 'Service eco',
+      image: '/eco-auto-service-green.png',
+      bgColor: 'bg-green-100',
+      iconColor: 'text-green-600'
+    }
+  ]
+
   // Auto-rotate premium services every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
@@ -54,6 +115,15 @@ export default function HomePage() {
 
     return () => clearInterval(interval)
   }, [premiumServices.length])
+
+  // Auto-rotate recommended services every 6 seconds (slightly slower than premium)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentRecommendedIndex((prev) => (prev + 1) % recommendedServices.length)
+    }, 6000)
+
+    return () => clearInterval(interval)
+  }, [recommendedServices.length])
 
   const currentPremiumService = premiumServices[currentPremiumIndex]
 
@@ -160,32 +230,49 @@ export default function HomePage() {
               </Card>
             </section>
 
-            {/* Featured Services */}
+            {/* Featured Services with Auto-Rotation */}
             <section className="mb-8">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">Service-uri recomandate</h2>
+                <div className="flex items-center space-x-4">
+                  <h2 className="text-2xl font-bold text-gray-900">Service-uri recomandate</h2>
+                  <div className="flex space-x-1">
+                    {recommendedServices.map((_, index) => (
+                      <div
+                        key={index}
+                        className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                          index === currentRecommendedIndex ? 'bg-orange-600 w-6' : 'bg-gray-300'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
                 <Link href="/services">
                   <Button variant="outline">Vezi toate</Button>
                 </Link>
               </div>
               
               <div className="grid md:grid-cols-2 gap-6">
-                <Card className="hover:shadow-lg transition-shadow">
+                {/* First recommended service (current rotation) */}
+                <Card className="hover:shadow-lg transition-all duration-500 border-2 border-orange-200">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <div className={`w-12 h-12 ${recommendedServices[currentRecommendedIndex].bgColor} rounded-lg flex items-center justify-center transition-all duration-500`}>
                           <Image 
-                            src="/auto-service-garage.png" 
-                            alt="AutoService Garage" 
+                            src={recommendedServices[currentRecommendedIndex].image || "/placeholder.svg"} 
+                            alt={recommendedServices[currentRecommendedIndex].name} 
                             width={32} 
                             height={32}
-                            className="rounded"
+                            className="rounded transition-all duration-500"
                           />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-lg">AutoService Garage SRL</h3>
-                          <p className="text-sm text-gray-600">Service complet și reparații</p>
+                          <h3 className="font-semibold text-lg transition-all duration-500">
+                            {recommendedServices[currentRecommendedIndex].name}
+                          </h3>
+                          <p className="text-sm text-gray-600 transition-all duration-500">
+                            {recommendedServices[currentRecommendedIndex].description}
+                          </p>
                         </div>
                       </div>
                       <Badge variant="secondary" className="bg-green-100 text-green-700">
@@ -197,21 +284,21 @@ export default function HomePage() {
                     <div className="grid grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
                       <div className="flex items-center space-x-1">
                         <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                        <span>4.8 (127 recenzii)</span>
+                        <span>{recommendedServices[currentRecommendedIndex].rating} ({recommendedServices[currentRecommendedIndex].reviews} recenzii)</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <MapPin className="h-4 w-4" />
-                        <span>Sector 3, București</span>
+                        <span>{recommendedServices[currentRecommendedIndex].location}</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Clock className="h-4 w-4" />
-                        <span>L-V: 8-18</span>
+                        <span>{recommendedServices[currentRecommendedIndex].schedule}</span>
                       </div>
                     </div>
                     
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-gray-600">
-                        <span className="font-medium text-orange-600">De la 150 RON</span> - Service complet
+                        <span className="font-medium text-orange-600">De la {recommendedServices[currentRecommendedIndex].priceFrom}</span> - {recommendedServices[currentRecommendedIndex].serviceType}
                       </div>
                       <div className="flex space-x-2">
                         <Button size="sm" variant="outline">
@@ -228,16 +315,27 @@ export default function HomePage() {
                   </CardContent>
                 </Card>
 
-                <Card className="hover:shadow-lg transition-shadow">
+                {/* Second recommended service (next in rotation) */}
+                <Card className="hover:shadow-lg transition-all duration-500">
                   <CardContent className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-3">
-                        <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <Wrench className="h-6 w-6 text-blue-600" />
+                        <div className={`w-12 h-12 ${recommendedServices[(currentRecommendedIndex + 1) % recommendedServices.length].bgColor} rounded-lg flex items-center justify-center transition-all duration-500`}>
+                          <Image 
+                            src={recommendedServices[(currentRecommendedIndex + 1) % recommendedServices.length].image || "/placeholder.svg"} 
+                            alt={recommendedServices[(currentRecommendedIndex + 1) % recommendedServices.length].name} 
+                            width={32} 
+                            height={32}
+                            className="rounded transition-all duration-500"
+                          />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-lg">TechAuto Service</h3>
-                          <p className="text-sm text-gray-600">Diagnosticare și reparații</p>
+                          <h3 className="font-semibold text-lg transition-all duration-500">
+                            {recommendedServices[(currentRecommendedIndex + 1) % recommendedServices.length].name}
+                          </h3>
+                          <p className="text-sm text-gray-600 transition-all duration-500">
+                            {recommendedServices[(currentRecommendedIndex + 1) % recommendedServices.length].description}
+                          </p>
                         </div>
                       </div>
                       <Badge variant="secondary" className="bg-green-100 text-green-700">
@@ -249,21 +347,21 @@ export default function HomePage() {
                     <div className="grid grid-cols-3 gap-4 text-sm text-gray-600 mb-4">
                       <div className="flex items-center space-x-1">
                         <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                        <span>4.9 (89 recenzii)</span>
+                        <span>{recommendedServices[(currentRecommendedIndex + 1) % recommendedServices.length].rating} ({recommendedServices[(currentRecommendedIndex + 1) % recommendedServices.length].reviews} recenzii)</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <MapPin className="h-4 w-4" />
-                        <span>Sector 1, București</span>
+                        <span>{recommendedServices[(currentRecommendedIndex + 1) % recommendedServices.length].location}</span>
                       </div>
                       <div className="flex items-center space-x-1">
                         <Clock className="h-4 w-4" />
-                        <span>L-S: 9-17</span>
+                        <span>{recommendedServices[(currentRecommendedIndex + 1) % recommendedServices.length].schedule}</span>
                       </div>
                     </div>
                     
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-gray-600">
-                        <span className="font-medium text-orange-600">De la 80 RON</span> - Diagnosticare
+                        <span className="font-medium text-orange-600">De la {recommendedServices[(currentRecommendedIndex + 1) % recommendedServices.length].priceFrom}</span> - {recommendedServices[(currentRecommendedIndex + 1) % recommendedServices.length].serviceType}
                       </div>
                       <div className="flex space-x-2">
                         <Button size="sm" variant="outline">
